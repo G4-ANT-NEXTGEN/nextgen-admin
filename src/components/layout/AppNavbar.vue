@@ -4,7 +4,7 @@
       <div class="main-nav-start">
         <div class="search-wrapper">
           <i class="bi bi-search search-icon"></i>
-          <input type="text" id="searchInput" placeholder="Enter keywords ..." required>
+          <input type="text" id="searchInput" placeholder="Enter keywords ..." autocomplete="off" required>
         </div>
       </div>
       <div class="main-nav-end">
@@ -310,7 +310,7 @@ onMounted(() => {
 .nav-user-inline:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  border-color: #0d6efd33;
+  border-color: var(--color-text);
 }
 
 .nav-user-name {

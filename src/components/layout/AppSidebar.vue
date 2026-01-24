@@ -58,7 +58,14 @@
       </div>
     </div>
     <div class="sidebar-footer">
+      <div class="sidebar-category">ACCOUNT</div>
       <ul class="sidebar-body-menu">
+        <li>
+          <RouterLink :class="{ active: isActive('/profile') }" to="/profile">
+            <i class="bi bi-person-fill" aria-hidden="true"></i>
+            <span>Profile</span>
+          </RouterLink>
+        </li>
         <li>
           <RouterLink :class="{ active: isActive('/help') }" to="/help"><i class="bi bi-question-circle-fill"
               aria-hidden="true"></i><span>Help & Support</span></RouterLink>
@@ -229,6 +236,15 @@ watch(
 
 .sidebar-footer .sidebar-body-menu button.text-danger {
   color: #dc3545;
+}
+
+.sidebar-category {
+  padding: 16px 14px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .sidebar-footer .sidebar-body-menu button.text-danger:hover {

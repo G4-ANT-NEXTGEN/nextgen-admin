@@ -10,6 +10,7 @@ import SubjectView from "@/views/subject/SubjectView.vue";
 import CategoryView from "@/views/category/CategoryView.vue";
 import { useAuthStore } from "@/stores/auth.js";
 import ProfileView from "@/views/profile/ProfileView.vue";
+import AnalyticsView from "@/views/AnalyticsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,14 @@ const router = createRouter({
           component: DashboardView,
           meta: {
             title: "Dashboard",
+          },
+        },
+        {
+          path: "analytics",
+          name: "analytics.index",
+          component: AnalyticsView,
+          meta: {
+            title: "Analytics",
           },
         },
         {

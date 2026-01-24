@@ -22,7 +22,8 @@ const handleLogout = async () => {
 <template>
   <div class="page-flex">
     <!-- Sidebar -->
-    <AppSidebar :authToken="authStore.token" :is-hidden="isSidebarHidden" @toggle-sidebar="toggleSidebar" @logout="handleLogout" />
+    <AppSidebar :authToken="authStore.token" :is-hidden="isSidebarHidden" @toggle-sidebar="toggleSidebar"
+      @logout="handleLogout" />
 
     <div class="main-wrapper" :class="{ 'sidebar-hidden': isSidebarHidden }">
       <!-- Top Navbar -->
@@ -30,8 +31,8 @@ const handleLogout = async () => {
 
       <!-- Main Content Area -->
       <main class="main">
-        <div class="container">
-          <slot></slot>
+        <div class="container-fluid">
+          <router-view />
         </div>
       </main>
 
@@ -56,7 +57,7 @@ const handleLogout = async () => {
 /* Component-specific overrides only */
 .main {
   flex-grow: 1;
-  padding: 30px 0;
+  padding: 20px 0;
   background-color: var(--color-background);
 }
 </style>
