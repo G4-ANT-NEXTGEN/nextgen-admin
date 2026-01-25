@@ -8,7 +8,10 @@ export const useCategoryStore = defineStore("category", () => {
   const isLoading = ref(false);
   const isProcessing = ref(false);
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (options = {}) => {
+    const { force = false } = options;
+    if (!force && categories.value.length > 0) return;
+
     try {
       isLoading.value = true;
       const res = await api.get(`/api/categories`);

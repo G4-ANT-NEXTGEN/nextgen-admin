@@ -8,7 +8,10 @@ export const useDegreeStore = defineStore("degree", () => {
   const isLoading = ref(false);
   const isProcessing = ref(false);
 
-  const fetchDegrees = async () => {
+  const fetchDegrees = async (options = {}) => {
+    const { force = false } = options;
+    if (!force && degrees.value.length > 0) return;
+
     try {
       isLoading.value = true;
       const res = await api.get(`/api/degrees`);

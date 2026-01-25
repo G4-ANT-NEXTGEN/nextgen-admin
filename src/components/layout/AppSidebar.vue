@@ -85,8 +85,9 @@ import { useRoute } from 'vue-router';
 
 defineProps({
   authToken: {
-    type: String,
-    required: true
+    type: [String, Object], // Object encompasses null in some contexts, or just remove type check strictly? Vue 3 supports [String, null]
+    required: false,
+    default: null
   },
   isHidden: {
     type: Boolean,

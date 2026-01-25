@@ -5,8 +5,13 @@ import { useRouter } from 'vue-router'
 import AppSidebar from '../components/layout/AppSidebar.vue'
 import AppNavbar from '../components/layout/AppNavbar.vue'
 
+import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
+
 const authStore = useAuthStore()
 const router = useRouter()
+const { add: addToast } = useToast()
+const confirm = useConfirm()
 const isSidebarHidden = ref(false)
 
 const toggleSidebar = () => {
@@ -14,8 +19,22 @@ const toggleSidebar = () => {
 }
 
 const handleLogout = async () => {
-  await authStore.logout()
-  router.push('/login')
+  const isConfirmed = await confirm.require({
+    title: 'Logout',
+    message: 'Are you sure you want to logout?',
+    confirmText: 'Logout',
+    type: 'danger'
+  })
+
+  if (isConfirmed) {
+    await authStore.logout()
+    addToast({
+      message: 'Logged out successfully',
+      type: 'success',
+      duration: 3000
+    })
+    router.push('/login')
+  }
 }
 </script>
 

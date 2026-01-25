@@ -71,8 +71,14 @@
       @close="showFormModal = false"
     >
       <div class="form-group">
-        <label>Category Name <span class="required">*</span></label>
-        <input v-model="form.name" type="text" class="custom-input" placeholder="Enter category name...">
+        <BaseInput
+          v-model="form.name"
+          label="Category Name"
+          placeholder="Enter category name..."
+          required
+          :error="errors.name"
+          @blur="validate('name')"
+        />
       </div>
       <template #footer>
         <button class="modal-btn cancel" :disabled="categoryStore.isProcessing" @click="showFormModal = false">Cancel</button>
@@ -175,6 +181,8 @@ import BaseCard from '@/components/ui/base/BaseCard.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import BaseModal from '@/components/ui/base/BaseModal.vue'
 import BasePagination from '@/components/ui/base/BasePagination.vue'
+import BaseInput from '@/components/ui/base/BaseInput.vue'
+import { useFormValidation, validationRules } from '@/composables/useFormValidation'
 
 // --- State ---
 const categoryStore = useCategoryStore()
@@ -192,6 +200,10 @@ const itemsPerPage = ref(10)
 
 const form = reactive({
   name: ''
+})
+
+const { errors, validateField: validate, validate: validateAll, reset: resetValidation } = useFormValidation(form, {
+  name: [validationRules.required('Category name is required')]
 })
 
 // --- Breadcrumbs ---
@@ -242,6 +254,7 @@ watch(() => categoryStore.categories?.length, () => {
 const openCreateModal = () => {
   isEditing.value = false
   form.name = ''
+  resetValidation()
   showFormModal.value = true
 }
 
@@ -249,6 +262,7 @@ const handleEdit = (item) => {
   isEditing.value = true
   selectedItem.value = item
   form.name = item.name
+  resetValidation()
   showFormModal.value = true
 }
 
@@ -263,19 +277,21 @@ const handleView = (item) => {
 }
 
 const saveCategory = async () => {
+  if (!validateAll()) return
+
   if (isEditing.value) {
     await categoryStore.editCategory(selectedItem.value.id, { name: form.name })
   } else {
     await categoryStore.createCategory({ name: form.name })
   }
   showFormModal.value = false
-  await categoryStore.fetchCategories()
+  await categoryStore.fetchCategories({ force: true })
 }
 
 const confirmDelete = async () => {
   await categoryStore.deleteCategory(selectedItem.value.id)
   showDeleteModal.value = false
-  await categoryStore.fetchCategories()
+  await categoryStore.fetchCategories({ force: true })
 }
 
 const handleSearch = () => {
@@ -318,14 +334,11 @@ const getStatusClass = (status) => {
 }
 
 .form-group { display: flex; flex-direction: column; gap: 10px; }
-.form-group label { font-size: 13px; font-weight: 600; color: var(--color-text); }
-.required { color: #ef4444; }
-.custom-input { background: var(--nav-surface); border: 1px solid var(--color-border); padding: 12px; border-radius: 10px; color: var(--color-text); }
 
 .modal-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; }
 .modal-btn.cancel { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
-.modal-btn.confirm, .modal-btn.delete-confirm { background: #fff; color: #000; }
-.modal-btn.full-btn { background: #fff; color: #000; width: 100%; }
+.modal-btn.confirm, .modal-btn.delete-confirm { background: var(--color-text); color: var(--color-secondary); }
+.modal-btn.full-btn { background: var(--color-text); color: var(--color-secondary); width: 100%; }
 
 .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .detail-card { background: var(--nav-surface); border: 1px solid var(--color-border); padding: 16px; border-radius: 12px; }
@@ -345,7 +358,7 @@ const getStatusClass = (status) => {
 }
 
 .confirm-message { color: var(--color-text); margin: 10px 0 20px 0; line-height: 1.6; }
-.confirm-message .highlight { font-weight: 700; color: #fff; }
+.confirm-message .highlight { font-weight: 700; color: var(--color-text); }
 
 .warning-alert {
   background: rgba(234, 179, 8, 0.05); border: 1px solid rgba(234, 179, 8, 0.2);

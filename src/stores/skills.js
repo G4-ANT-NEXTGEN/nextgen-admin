@@ -8,7 +8,12 @@ export const useSkillStore = defineStore("skill", () => {
   const isLoading = ref(false);
   const isProcessing = ref(false);
 
-  const fetchSkills = async () => {
+  const fetchSkills = async (options = {}) => {
+    const { force = false } = options;
+
+    // Cache check: Skip if we already have data and not forcing refresh
+    if (!force && skills.value.length > 0) return;
+
     try {
       isLoading.value = true;
       const res = await api.get(`/api/skills`);

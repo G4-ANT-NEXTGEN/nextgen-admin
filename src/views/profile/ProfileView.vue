@@ -78,43 +78,81 @@
         </div>
       </template>
 
-      <div class="form-content edit-grid">
-        <div class="form-group mb-3">
-          <label>Full Name</label>
-          <input v-model="personalForm.full_name" type="text" class="custom-input" placeholder="Enter full name">
-        </div>
-        <div class="form-group mb-3">
-          <label>Email Address</label>
-          <input v-model="personalForm.email" type="email" class="custom-input" placeholder="Enter email">
-        </div>
-        <div class="form-group mb-3">
-          <label>Phone Number</label>
-          <input v-model="personalForm.phone" type="text" class="custom-input" placeholder="Enter phone number">
-        </div>
-        <div class="form-group mb-3">
-          <label>Date of Birth</label>
-          <input v-model="personalForm.dob" type="date" class="custom-input">
-        </div>
-        <div class="form-group mb-3">
-          <label>Gender</label>
-          <select v-model="personalForm.gender" class="custom-select">
-            <option :value="0">Female</option>
-            <option :value="1">Male</option>
-            <option :value="2">Other</option>
-          </select>
-        </div>
-        <div class="form-group mb-3">
-          <label>Current City</label>
-          <input v-model="personalForm.current_city" type="text" class="custom-input" placeholder="Enter city">
-        </div>
-        <div class="form-group mb-3">
-          <label>Home Town</label>
-          <input v-model="personalForm.home_town" type="text" class="custom-input" placeholder="Enter home town">
-        </div>
-        <div class="form-group mb-3 full-width">
-          <label>Portfolio Link</label>
-          <input v-model="personalForm.portfolio_link" type="url" class="custom-input" placeholder="https://...">
-        </div>
+      <div class="edit-grid">
+        <BaseInput
+          v-model="personalForm.full_name"
+          label="Full Name"
+          type="text"
+          placeholder="Enter full name"
+          :error="personalFormErrors.full_name"
+          @blur="validatePersonalField('full_name')"
+        />
+
+        <BaseInput
+          v-model="personalForm.email"
+          label="Email Address"
+          type="email"
+          placeholder="Enter email"
+          :error="personalFormErrors.email"
+          @blur="validatePersonalField('email')"
+        />
+
+        <BaseInput
+          v-model="personalForm.phone"
+          label="Phone Number"
+          type="text"
+          placeholder="Enter phone number"
+          :error="personalFormErrors.phone"
+          @blur="validatePersonalField('phone')"
+        />
+
+        <BaseInput
+          v-model="personalForm.dob"
+          label="Date of Birth"
+          type="date"
+          :error="personalFormErrors.dob"
+          @blur="validatePersonalField('dob')"
+        />
+
+        <BaseSelect
+          v-model="personalForm.gender"
+          label="Gender"
+          :options="[
+            { value: 0, label: 'Female' },
+            { value: 1, label: 'Male' },
+            { value: 2, label: 'Other' }
+          ]"
+          :error="personalFormErrors.gender"
+          @blur="validatePersonalField('gender')"
+        />
+
+        <BaseInput
+          v-model="personalForm.current_city"
+          label="Current City"
+          type="text"
+          placeholder="Enter city"
+          :error="personalFormErrors.current_city"
+          @blur="validatePersonalField('current_city')"
+        />
+
+        <BaseInput
+          v-model="personalForm.home_town"
+          label="Home Town"
+          type="text"
+          placeholder="Enter home town"
+          :error="personalFormErrors.home_town"
+          @blur="validatePersonalField('home_town')"
+        />
+
+        <BaseInput
+          v-model="personalForm.portfolio_link"
+          label="Portfolio Link"
+          type="url"
+          placeholder="https://..."
+          :error="personalFormErrors.portfolio_link"
+          @blur="validatePersonalField('portfolio_link')"
+          class="full-width-input"
+        />
       </div>
 
       <template #footer>
@@ -319,39 +357,42 @@
                 style="display: none;"
                 readonly
               >
-              <div class="form-group mb-4">
-                <label>Current Password</label>
-                <input
-                  v-model="passwordForm.old_pass"
-                  type="password"
-                  class="custom-input"
-                  placeholder="Enter current password"
-                  autocomplete="current-password"
-                  name="current-password"
-                >
-              </div>
-              <div class="form-group mb-4">
-                <label>New Password</label>
-                <input
-                  v-model="passwordForm.new_pass"
-                  type="password"
-                  class="custom-input"
-                  placeholder="Enter new password"
-                  autocomplete="new-password"
-                  name="new-password"
-                >
-              </div>
-              <div class="form-group mb-4">
-                <label>Confirm New Password</label>
-                <input
-                  v-model="passwordForm.new_pass_confirmation"
-                  type="password"
-                  class="custom-input"
-                  placeholder="Confirm new password"
-                  autocomplete="new-password"
-                  name="confirm-password"
-                >
-              </div>
+              <BaseInput
+                v-model="passwordForm.old_pass"
+                label="Current Password"
+                type="password"
+                placeholder="Enter current password"
+                :error="passwordFormErrors.old_pass"
+                @blur="validatePasswordField('old_pass')"
+                autocomplete="current-password"
+                name="current-password"
+                class="mb-4"
+              />
+
+              <BaseInput
+                v-model="passwordForm.new_pass"
+                label="New Password"
+                type="password"
+                placeholder="Enter new password"
+                :error="passwordFormErrors.new_pass"
+                @blur="validatePasswordField('new_pass')"
+                autocomplete="new-password"
+                name="new-password"
+                class="mb-4"
+              />
+
+              <BaseInput
+                v-model="passwordForm.new_pass_confirmation"
+                label="Confirm New Password"
+                type="password"
+                placeholder="Confirm new password"
+                :error="passwordFormErrors.new_pass_confirmation"
+                @blur="validatePasswordField('new_pass_confirmation')"
+                autocomplete="new-password"
+                name="confirm-password"
+                class="mb-4"
+              />
+
               <button type="submit" class="modal-btn confirm btn-update" :disabled="profileStore.isProcessing">
                 <span v-if="profileStore.isProcessing" class="spinner-border spinner-border-sm me-2"></span>
                 Update Password
@@ -467,26 +508,26 @@
             </div>
 
             <div class="preferences-form">
-              <div class="form-group mb-4">
-                <label>Language</label>
-                <select class="custom-select">
-                  <option>English (US)</option>
-                  <option>Spanish</option>
-                </select>
+              <div class="mb-4">
+                <BaseSelect
+                  label="Language"
+                  :options="['English (US)', 'Spanish']"
+                  modelValue="English (US)"
+                />
               </div>
-              <div class="form-group mb-4">
-                <label>Timezone</label>
-                <select class="custom-select">
-                  <option>Pacific Time (PT)</option>
-                  <option>UTC +0</option>
-                </select>
+              <div class="mb-4">
+                <BaseSelect
+                  label="Timezone"
+                  :options="['Pacific Time (PT)', 'UTC +0']"
+                  modelValue="Pacific Time (PT)"
+                />
               </div>
-              <div class="form-group">
-                <label>Date Format</label>
-                <select class="custom-select">
-                  <option>MM/DD/YYYY</option>
-                  <option>DD/MM/YYYY</option>
-                </select>
+              <div class="mb-4">
+                <BaseSelect
+                  label="Date Format"
+                  :options="['MM/DD/YYYY', 'DD/MM/YYYY']"
+                  modelValue="MM/DD/YYYY"
+                />
               </div>
             </div>
           </BaseCard>
@@ -554,7 +595,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, watch } from 'vue'
 import { useProfileStore } from '@/stores/profile'
 import { useToast } from '@/composables/useToast'
 import { useConfirm } from '@/composables/useConfirm'
@@ -562,6 +603,9 @@ import BreadcrumbNav from '@/components/ui/BreadcrumbNav.vue'
 import BaseCard from '@/components/ui/base/BaseCard.vue'
 import BaseModal from '@/components/ui/base/BaseModal.vue'
 import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'
+import BaseInput from '@/components/ui/base/BaseInput.vue'
+import BaseSelect from '@/components/ui/base/BaseSelect.vue'
+import { useFormValidation, validationRules } from '@/composables/useFormValidation'
 
 const profileStore = useProfileStore()
 const toast = useToast()
@@ -569,6 +613,16 @@ const confirm = useConfirm()
 const activeTab = ref('overview')
 const fileInput = ref(null)
 const showEditModal = ref(false)
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'security') {
+    resetPasswordValidation()
+    // Optional: clear form values if needed, but keeping them might be desired
+    // passwordForm.old_pass = ''
+    // passwordForm.new_pass = ''
+    // passwordForm.new_pass_confirmation = ''
+  }
+})
 
 const personalForm = reactive({
   full_name: '',
@@ -581,10 +635,38 @@ const personalForm = reactive({
   portfolio_link: ''
 })
 
+const {
+  errors: personalFormErrors,
+  validateField: validatePersonalField,
+  validate: validateAllPersonal
+} = useFormValidation(personalForm, {
+  full_name: [validationRules.required('Full name is required')],
+  email: [validationRules.required('Email is required'), validationRules.email()],
+  phone: [validationRules.required('Phone number is required')],
+  portfolio_link: [validationRules.url('Please enter a valid URL (https://...)')]
+})
+
 const passwordForm = reactive({
   old_pass: '',
   new_pass: '',
   new_pass_confirmation: ''
+})
+
+const {
+  errors: passwordFormErrors,
+  validateField: validatePasswordField,
+  validate: validateAllPassword,
+  reset: resetPasswordValidation
+} = useFormValidation(passwordForm, {
+  old_pass: [validationRules.required('Current password is required')],
+  new_pass: [
+    validationRules.required('New password is required'),
+    validationRules.minLength(6, 'Password must be at least 6 characters')
+  ],
+  new_pass_confirmation: [
+    validationRules.required('Please confirm your new password'),
+    (value) => value === passwordForm.new_pass || 'Passwords do not match'
+  ]
 })
 
 const breadcrumbs = [
@@ -617,8 +699,19 @@ const openEditModal = () => {
 }
 
 const savePersonalInfo = async () => {
+  if (!validateAllPersonal()) {
+    toast.error('Please fix the errors before saving')
+    return
+  }
+
   try {
-    await profileStore.updatePersonalInfo(personalForm)
+    const payload = { ...personalForm }
+    // Clean up empty strings to null
+    Object.keys(payload).forEach(key => {
+      if (payload[key] === '') payload[key] = null
+    })
+
+    await profileStore.updatePersonalInfo(payload)
     showEditModal.value = false
     toast.success('Profile updated successfully!')
   } catch (err) {
@@ -628,10 +721,11 @@ const savePersonalInfo = async () => {
 }
 
 const updatePassword = async () => {
-  if (passwordForm.new_pass !== passwordForm.new_pass_confirmation) {
-    toast.warning('New passwords do not match')
+  if (!validateAllPassword()) {
+    toast.error('Please fix the password errors')
     return
   }
+
   try {
     await profileStore.changePassword(passwordForm)
     passwordForm.old_pass = ''
@@ -640,7 +734,11 @@ const updatePassword = async () => {
     toast.success('Password updated successfully!')
   } catch (err) {
     console.error(err)
-    toast.error('Failed to update password')
+    if (err.response?.status === 422) {
+      toast.error(err.response.data.message || 'Incorrect current password')
+    } else {
+      toast.error('Failed to update password')
+    }
   }
 }
 
@@ -1023,13 +1121,13 @@ const formatDate = (dateStr) => {
 }
 
 .modal-btn.confirm {
-  background: #fff;
-  color: #000;
+  background: var(--color-text);
+  color: var(--color-secondary);
 }
 
 [data-theme='dark'] .modal-btn.confirm {
-  background: #fff;
-  color: #000;
+  background: var(--color-text);
+  color: var(--color-secondary);
 }
 
 .modal-btn:disabled {
@@ -1111,18 +1209,6 @@ const formatDate = (dateStr) => {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
-}
-
-.custom-input,
-.custom-select {
-  width: 100%;
-  background: var(--nav-surface);
-  border: 1px solid var(--color-border);
-  padding: 12px;
-  border-radius: 10px;
-  color: var(--color-text);
-  font-size: 14px;
-  outline: none;
 }
 
 .custom-input:focus,
@@ -1257,21 +1343,7 @@ const formatDate = (dateStr) => {
   max-width: 600px;
 }
 
-.custom-input, .custom-select {
-  background: var(--nav-bg);
-  border: 1px solid var(--color-border);
-  padding: 12px 16px;
-  border-radius: 10px;
-  color: var(--color-text);
-  font-size: 14px;
-  width: 100%;
-  transition: border-color 0.2s;
-}
-
-.custom-input:focus, .custom-select:focus {
-  outline: none;
-  border-color: var(--color-muted);
-}
+/* Removed .custom-input and .custom-select styles */
 
 .btn-update {
   margin-top: 8px;
@@ -1405,11 +1477,11 @@ const formatDate = (dateStr) => {
 }
 
 .custom-toggle input:checked + .toggle-slider {
-  background-color: #fff;
+  background-color: var(--color-text);
 }
 
 [data-theme='light'] .custom-toggle input:checked + .toggle-slider {
-  background-color: #000;
+  background-color: var(--color-text);
 }
 
 .custom-toggle input:checked + .toggle-slider:before {

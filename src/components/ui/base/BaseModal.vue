@@ -142,18 +142,32 @@ const close = () => emit('close')
   color: var(--color-text);
 }
 
+.pattern-header .modal-title {
+  color: #ffffff;
+}
+
 .modal-subtitle {
   margin: 4px 0 0 0;
   font-size: 13px;
   color: var(--color-muted);
 }
 
+.pattern-header .modal-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .close-btn {
   background: transparent;
   border: none;
-  color: var(--color-muted);
+  color: var(--color-text);
   cursor: pointer;
   padding: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+  opacity: 1;
 }
 
 /* Body & Footer */

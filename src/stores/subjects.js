@@ -8,7 +8,10 @@ export const useSubjectStore = defineStore("subject", () => {
   const isLoading = ref(false);
   const isProcessing = ref(false);
 
-  const fetchSubjects = async () => {
+  const fetchSubjects = async (options = {}) => {
+    const { force = false } = options;
+    if (!force && subjects.value.length > 0) return;
+
     try {
       isLoading.value = true;
       const res = await api.get(`/api/subjects`);
