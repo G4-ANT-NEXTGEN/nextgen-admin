@@ -36,7 +36,30 @@ export const useCategoryStore = defineStore("category", () => {
   const createCategory = async (payload) => {
     try {
       isProcessing.value = true;
-      const res = await api.post(`/api/categories`, payload);
+      const formData = new FormData();
+
+      // Add image file if present
+      if (payload.image instanceof File) {
+        formData.append('image', payload.image);
+      }
+
+      // Add name field
+      if (payload.name) {
+        formData.append('name', payload.name);
+      }
+
+      // Add any other fields from payload
+      Object.keys(payload).forEach(key => {
+        if (key !== 'image' && key !== 'name' && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
+        }
+      });
+
+      const res = await api.post(`/api/categories`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return res.data;
     } catch (err) {
       console.log(err);
@@ -48,7 +71,30 @@ export const useCategoryStore = defineStore("category", () => {
   const editCategory = async (id, payload) => {
     try {
       isProcessing.value = true;
-      const res = await api.put(`/api/categories/${id}`, payload);
+      const formData = new FormData();
+
+      // Add image file if present
+      if (payload.image instanceof File) {
+        formData.append('image', payload.image);
+      }
+
+      // Add name field
+      if (payload.name) {
+        formData.append('name', payload.name);
+      }
+
+      // Add any other fields from payload
+      Object.keys(payload).forEach(key => {
+        if (key !== 'image' && key !== 'name' && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
+        }
+      });
+
+      const res = await api.put(`/api/categories/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return res.data;
     } catch (err) {
       console.log(err);

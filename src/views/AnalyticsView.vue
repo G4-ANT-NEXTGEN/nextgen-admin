@@ -24,6 +24,29 @@
       </div>
     </header>
 
+    <section class="kpi-strip">
+      <BaseCard class="kpi-card">
+        <div class="kpi-label">Total Records</div>
+        <div class="kpi-value">{{ dashboardStore.summaryData.totalRecords }}</div>
+        <div class="kpi-meta">Across all content types</div>
+      </BaseCard>
+      <BaseCard class="kpi-card">
+        <div class="kpi-label">Total Users</div>
+        <div class="kpi-value">{{ dashboardStore.userStats.totalUsers }}</div>
+        <div class="kpi-meta">{{ verifiedRate }}% verified</div>
+      </BaseCard>
+      <BaseCard class="kpi-card">
+        <div class="kpi-label">New Users (30d)</div>
+        <div class="kpi-value">{{ dashboardStore.userStats.newUsers }}</div>
+        <div class="kpi-meta">Recent growth snapshot</div>
+      </BaseCard>
+      <BaseCard class="kpi-card">
+        <div class="kpi-label">Data Accuracy</div>
+        <div class="kpi-value">{{ dashboardStore.summaryData.dataAccuracy }}</div>
+        <div class="kpi-meta">Sync speed {{ syncSpeed }}ms</div>
+      </BaseCard>
+    </section>
+
     <div class="analytics-grid">
       <div class="main-charts">
         <!-- Content Distribution -->
@@ -32,25 +55,29 @@
         </BaseCard>
 
         <!-- Growth Trends -->
-        <BaseCard class="analytics-card">
-          <TrendChart
-            :data="growthData"
-            :labels="['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"
-          />
-        </BaseCard>
+        <LineChart title="Monthly Growth" subtitle="Users and content growth trend" icon="bi-activity"
+          :labels="growthLabels" :series="growthData" :is-loading="dashboardStore.isLoading" />
       </div>
 
       <!-- Distribution Metrics -->
       <div class="side-metrics">
-        <BaseCard class="analytics-card health-card">
-          <div class="health-metrics">
-            <div class="health-item">
-              <span class="label">Sync Speed</span>
-              <strong class="value">{{ syncSpeed }}ms</strong>
+        <BaseCard class="analytics-card pulse-card">
+          <div class="pulse-head">
+            <span>System Pulse</span>
+            <span class="pulse-badge">Live</span>
+          </div>
+          <div class="pulse-metrics">
+            <div class="pulse-item">
+              <span class="label">Verified Users</span>
+              <strong class="value">{{ dashboardStore.userStats.verifiedUsers }}</strong>
             </div>
-            <div class="health-item">
-              <span class="label">Total Items</span>
-              <strong class="value">{{ dashboardStore.summaryData.totalRecords }}</strong>
+            <div class="pulse-item">
+              <span class="label">New Users (30d)</span>
+              <strong class="value">{{ dashboardStore.userStats.newUsers }}</strong>
+            </div>
+            <div class="pulse-item">
+              <span class="label">Active Categories</span>
+              <strong class="value">{{ dashboardStore.categories.length }}</strong>
             </div>
           </div>
         </BaseCard>
@@ -64,13 +91,181 @@
                 <span>{{ Math.round((item.value / totalCount) * 100) }}%</span>
               </div>
               <div class="mini-progress">
-                <div class="mini-fill" :style="{ width: (item.value / totalCount) * 100 + '%', backgroundColor: item.color }"></div>
+                <div class="mini-fill"
+                  :style="{ width: (item.value / totalCount) * 100 + '%', backgroundColor: item.color }"></div>
               </div>
             </div>
           </div>
         </BaseCard>
       </div>
     </div>
+
+    <section class="analytics-insights-grid">
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-funnel"></i>
+            <span>User Funnel</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div class="metric-row">
+            <span>Total Users</span>
+            <strong>{{ dashboardStore.userStats.totalUsers }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Verified Users</span>
+            <strong>{{ dashboardStore.userStats.verifiedUsers }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>New Users (30d)</span>
+            <strong>{{ dashboardStore.userStats.newUsers }}</strong>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-calendar-range"></i>
+            <span>Retention Snapshot</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div class="metric-row">
+            <span>Last 7 days</span>
+            <strong>{{ cohortStats.last7 }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Last 30 days</span>
+            <strong>{{ cohortStats.last30 }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Last 90 days</span>
+            <strong>{{ cohortStats.last90 }}</strong>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-graph-up"></i>
+            <span>Growth Rate</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div class="metric-row">
+            <span>Week over week</span>
+            <strong>{{ growthRates.weekly }}%</strong>
+          </div>
+          <div class="metric-row">
+            <span>Month over month</span>
+            <strong>{{ growthRates.monthly }}%</strong>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-diagram-3"></i>
+            <span>User Segments</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div class="metric-row">
+            <span>Profiles with phone</span>
+            <strong>{{ segmentStats.withPhone }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Profiles with portfolio</span>
+            <strong>{{ segmentStats.withPortfolio }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Profiles with CV</span>
+            <strong>{{ segmentStats.withCv }}</strong>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-stars"></i>
+            <span>Top Entities</span>
+          </div>
+        </template>
+        <div class="mini-list">
+          <div class="mini-group">
+            <span class="mini-title">Skills</span>
+            <div class="chip" v-for="item in topSkills" :key="item.id">{{ item.name }}</div>
+          </div>
+          <div class="mini-group">
+            <span class="mini-title">Subjects</span>
+            <div class="chip" v-for="item in topSubjects" :key="item.id">{{ item.name }}</div>
+          </div>
+          <div class="mini-group">
+            <span class="mini-title">Categories</span>
+            <div class="chip" v-for="item in topCategories" :key="item.id">{{ item.name }}</div>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-geo-alt"></i>
+            <span>Users by City</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div v-for="city in topCities" :key="city.name" class="metric-row">
+            <span>{{ city.name }}</span>
+            <strong>{{ city.count }}</strong>
+          </div>
+          <div v-if="!topCities.length" class="empty-state">No city data available</div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-heart-pulse"></i>
+            <span>Operational Health</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div class="metric-row">
+            <span>API Status</span>
+            <strong :class="healthStatus.class">{{ healthStatus.label }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Last Refresh</span>
+            <strong>{{ lastRefreshLabel }}</strong>
+          </div>
+          <div class="metric-row">
+            <span>Sync Speed</span>
+            <strong>{{ syncSpeed }}ms</strong>
+          </div>
+        </div>
+      </BaseCard>
+
+      <BaseCard class="analytics-card insight-card">
+        <template #header>
+          <div class="section-title">
+            <i class="bi bi-clock"></i>
+            <span>Data Freshness</span>
+          </div>
+        </template>
+        <div class="metric-list">
+          <div v-for="item in freshnessData" :key="item.label" class="metric-row">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
+        </div>
+      </BaseCard>
+    </section>
 
     <!-- Bottom Section: Logs & Categories -->
     <div class="analytics-footer-grid">
@@ -82,7 +277,7 @@
           </div>
         </template>
         <div class="category-list-mini">
-          <div v-for="cat in dashboardStore.categories.slice(0, 5)" :key="cat.id" class="category-pill-item">
+          <div v-for="cat in dashboardStore.categories.slice(0, 6)" :key="cat.id" class="category-pill-item">
             <span class="dot-sm"></span>
             <span class="name">{{ cat.name }}</span>
           </div>
@@ -90,39 +285,25 @@
         </div>
       </BaseCard>
 
-      <BaseCard class="analytics-card audit-log">
+      <BaseCard class="analytics-card newest-users">
         <template #header>
           <div class="section-title">
-            <i class="bi bi-journal-text"></i>
-            <span>System Audit Log</span>
+            <i class="bi bi-people"></i>
+            <span>Newest Users</span>
           </div>
         </template>
-        <div class="audit-table-wrapper">
-          <table class="audit-table">
-            <thead>
-              <tr>
-                <th>Resource</th>
-                <th>Status</th>
-                <th>Integrity</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="log in recentLogs" :key="log.name">
-                <td>
-                  <div class="resource-cell">
-                    <span class="name">{{ log.name }}</span>
-                    <span class="type">{{ log.type }}</span>
-                  </div>
-                </td>
-                <td><span class="badge-status">Active</span></td>
-                <td>
-                  <div class="integrity-score">
-                    <div class="score-bar" :style="{ width: log.score + '%' }"></div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="user-list">
+          <div v-for="user in dashboardStore.newestUsers" :key="user.id" class="user-row">
+            <img class="user-avatar" :src="getAvatarUrl(user.avatar)" :alt="user.full_name" />
+            <div class="user-info">
+              <span class="user-name">{{ user.full_name }}</span>
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+            <span class="user-status" :class="user.email_verified_at ? 'verified' : 'unverified'">
+              {{ user.email_verified_at ? 'Verified' : 'Unverified' }}
+            </span>
+          </div>
+          <div v-if="!dashboardStore.newestUsers.length" class="empty-state">No recent users</div>
         </div>
       </BaseCard>
     </div>
@@ -134,36 +315,32 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import BaseCard from '@/components/ui/base/BaseCard.vue'
 import DonutChart from '@/components/charts/DonutChart.vue'
-import TrendChart from '@/components/charts/TrendChart.vue'
+import LineChart from '@/components/charts/LineChart.vue'
 import { useDashboardStore } from '@/stores/dashboard'
 
 const dashboardStore = useDashboardStore()
 const syncSpeed = ref(149)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://novia2.csm.linkpc.net'
+const lastRefresh = ref(null)
 
 onMounted(() => {
   if (!dashboardStore.skills.length) {
-    dashboardStore.fetchDashboardData()
+    dashboardStore.fetchDashboardData().finally(() => {
+      lastRefresh.value = new Date()
+    })
+    return
   }
+  lastRefresh.value = new Date()
 })
 
 const distributionData = computed(() => [
-  { label: 'Skills', value: dashboardStore.skills.length || 3, color: '#333' },
-  { label: 'Schools', value: dashboardStore.schools.length || 5, color: '#666' },
-  { label: 'Subjects', value: dashboardStore.subjects.length || 3, color: '#999' },
-  { label: 'Degrees', value: dashboardStore.degrees.length || 3, color: '#ccc' },
+  { label: 'Users', value: dashboardStore.users.length || 0, color: '#3b82f6' },
+  { label: 'Skills', value: dashboardStore.skills.length || 0, color: '#22c55e' },
+  { label: 'Schools', value: dashboardStore.schools.length || 0, color: '#f59e0b' },
+  { label: 'Subjects', value: dashboardStore.subjects.length || 0, color: '#6366f1' },
+  { label: 'Degrees', value: dashboardStore.degrees.length || 0, color: '#ec4899' },
+  { label: 'Categories', value: dashboardStore.categories.length || 0, color: '#10b981' },
 ])
-
-const recentLogs = computed(() => {
-  const items = [
-    ...dashboardStore.skills.slice(0, 2).map(s => ({ name: s.name, type: 'Skill', score: 95 })),
-    ...dashboardStore.schools.slice(0, 2).map(s => ({ name: s.name, type: 'School', score: 100 })),
-    ...dashboardStore.subjects.slice(0, 1).map(s => ({ name: s.name, type: 'Subject', score: 88 })),
-  ];
-  return items.length ? items : [
-    { name: 'System Core', type: 'Database', score: 100 },
-    { name: 'API Gateway', type: 'Network', score: 99 }
-  ];
-})
 
 const growthData = computed(() => {
   const base = totalCount.value || 14
@@ -177,9 +354,137 @@ const growthData = computed(() => {
   ]
 })
 
+const growthLabels = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+
 const totalCount = computed(() => {
   return distributionData.value.reduce((acc, curr) => acc + curr.value, 0) || 14
 })
+
+const verifiedRate = computed(() => {
+  const total = dashboardStore.userStats.totalUsers || 0
+  if (!total) return 0
+  return Math.round((dashboardStore.userStats.verifiedUsers / total) * 100)
+})
+
+const getDateDaysAgo = (days) => {
+  const date = new Date()
+  date.setDate(date.getDate() - days)
+  return date
+}
+
+const countUsersSince = (days) => {
+  const since = getDateDaysAgo(days)
+  return dashboardStore.users.filter((u) => u.created_at && new Date(u.created_at) >= since).length
+}
+
+const countUsersBetween = (start, end) => {
+  return dashboardStore.users.filter((u) => {
+    if (!u.created_at) return false
+    const created = new Date(u.created_at)
+    return created >= start && created < end
+  }).length
+}
+
+const cohortStats = computed(() => ({
+  last7: countUsersSince(7),
+  last30: countUsersSince(30),
+  last90: countUsersSince(90),
+}))
+
+const growthRates = computed(() => {
+  const end = new Date()
+  const start7 = getDateDaysAgo(7)
+  const prev7 = getDateDaysAgo(14)
+  const current7 = countUsersBetween(start7, end)
+  const previous7 = countUsersBetween(prev7, start7)
+  const weekly = previous7 ? Math.round(((current7 - previous7) / previous7) * 100) : (current7 ? 100 : 0)
+
+  const start30 = getDateDaysAgo(30)
+  const prev30 = getDateDaysAgo(60)
+  const current30 = countUsersBetween(start30, end)
+  const previous30 = countUsersBetween(prev30, start30)
+  const monthly = previous30 ? Math.round(((current30 - previous30) / previous30) * 100) : (current30 ? 100 : 0)
+
+  return { weekly, monthly }
+})
+
+const segmentStats = computed(() => {
+  const users = dashboardStore.users
+  return {
+    withPhone: users.filter((u) => u.phone).length,
+    withPortfolio: users.filter((u) => u.portfolio_link).length,
+    withCv: users.filter((u) => u.cv).length,
+  }
+})
+
+const getRecentItems = (items) => {
+  return [...items]
+    .filter((item) => item && (item.created_at || item.updated_at))
+    .sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at))
+    .slice(0, 3)
+}
+
+const topSkills = computed(() => getRecentItems(dashboardStore.skills))
+const topSubjects = computed(() => getRecentItems(dashboardStore.subjects))
+const topCategories = computed(() => getRecentItems(dashboardStore.categories))
+
+const topCities = computed(() => {
+  const counts = new Map()
+  dashboardStore.users.forEach((u) => {
+    if (!u.current_city) return
+    counts.set(u.current_city, (counts.get(u.current_city) || 0) + 1)
+  })
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+})
+
+const getLatestDate = (items) => {
+  const timestamps = items
+    .map((item) => item.updated_at || item.created_at)
+    .filter(Boolean)
+    .map((value) => new Date(value))
+  if (!timestamps.length) return null
+  return new Date(Math.max(...timestamps.map((d) => d.getTime())))
+}
+
+const formatRelativeDate = (date) => {
+  if (!date) return 'No data'
+  const diffMs = Date.now() - date.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  if (diffDays <= 0) return 'Today'
+  if (diffDays === 1) return '1 day ago'
+  return `${diffDays} days ago`
+}
+
+const freshnessData = computed(() => [
+  { label: 'Users', value: formatRelativeDate(getLatestDate(dashboardStore.users)) },
+  { label: 'Skills', value: formatRelativeDate(getLatestDate(dashboardStore.skills)) },
+  { label: 'Schools', value: formatRelativeDate(getLatestDate(dashboardStore.schools)) },
+  { label: 'Subjects', value: formatRelativeDate(getLatestDate(dashboardStore.subjects)) },
+  { label: 'Degrees', value: formatRelativeDate(getLatestDate(dashboardStore.degrees)) },
+  { label: 'Categories', value: formatRelativeDate(getLatestDate(dashboardStore.categories)) },
+])
+
+const healthStatus = computed(() => {
+  if (dashboardStore.isLoading) return { label: 'Syncing', class: 'status-syncing' }
+  if (dashboardStore.error) return { label: 'Degraded', class: 'status-degraded' }
+  return { label: 'Healthy', class: 'status-healthy' }
+})
+
+const lastRefreshLabel = computed(() => {
+  if (!lastRefresh.value) return 'Not yet synced'
+  return formatRelativeDate(lastRefresh.value)
+})
+
+const getAvatarUrl = (avatar) => {
+  if (!avatar || avatar === 'no_photo.jpg') {
+    return '/images/avatar/avatar-illustrated-01.png'
+  }
+  return `${API_BASE_URL}/storage/avatars/${avatar}`
+}
 
 const exportHighRes = () => {
   window.print()
@@ -189,7 +494,11 @@ const exportHighRes = () => {
 <style scoped>
 /* Print Styles for high-quality PDF export */
 @media print {
-  .header-actions, .btn, .eyebrow-wrapper, .subtext {
+
+  .header-actions,
+  .btn,
+  .eyebrow-wrapper,
+  .subtext {
     display: none !important;
   }
 
@@ -209,7 +518,8 @@ const exportHighRes = () => {
     color: #000 !important;
   }
 
-  .analytics-grid, .analytics-footer-grid {
+  .analytics-grid,
+  .analytics-footer-grid {
     display: block !important;
     width: 100% !important;
   }
@@ -333,8 +643,103 @@ const exportHighRes = () => {
 
 .analytics-footer-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
+}
+
+.analytics-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.metric-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.metric-row strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.mini-list {
+  display: grid;
+  gap: 12px;
+}
+
+.mini-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mini-title {
+  width: 100%;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+
+.chip {
+  background: var(--nav-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.status-healthy {
+  color: #22c55e;
+}
+
+.status-degraded {
+  color: #ef4444;
+}
+
+.status-syncing {
+  color: #eab308;
+}
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.kpi-meta {
+  font-size: 12px;
+  color: var(--color-muted);
 }
 
 .category-list-mini {
@@ -434,42 +839,51 @@ const exportHighRes = () => {
   opacity: 0.4;
 }
 
-.main-charts, .side-metrics {
+.main-charts,
+.side-metrics {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.health-metrics {
+.pulse-head {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 12px;
 }
 
-.health-item {
+.pulse-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.pulse-metrics {
+  display: grid;
+  gap: 10px;
+}
+
+.pulse-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--nav-surface);
 }
 
-.health-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+.pulse-item .label {
+  font-size: 13px;
+  color: var(--color-muted);
 }
 
-.health-item:first-child {
-  padding-top: 0;
-}
-
-.health-item .label {
+.pulse-item .value {
   font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.health-item .value {
-  font-size: 15px;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -506,6 +920,69 @@ const exportHighRes = () => {
   border-radius: 99px;
   transition: width 0.8s ease;
   opacity: 0.8;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--nav-surface);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.user-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.user-status.verified {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.user-status.pending {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.user-status.unverified {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
 }
 
 @media (max-width: 1024px) {

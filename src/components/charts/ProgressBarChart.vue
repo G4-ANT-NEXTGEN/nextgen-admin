@@ -24,16 +24,8 @@
     </div>
 
     <div v-else class="progress-container">
-      <div class="progress-list">
-        <div v-for="item in data" :key="item.label" class="progress-row">
-          <div class="progress-top">
-            <span>{{ item.label }}</span>
-            <span class="muted">{{ item.value }}%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: item.value + '%' }"></div>
-          </div>
-        </div>
+      <div class="chart-wrapper">
+        <Bar :data="chartData" :options="chartOptions" />
       </div>
 
       <div v-if="summary" class="summary-row">
@@ -47,10 +39,26 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { Bar } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
 import BaseCard from '@/components/ui/base/BaseCard.vue'
 import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'
+import { useThemeStore } from '@/stores/theme'
 
-defineProps({
+const themeStore = useThemeStore()
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+
+const props = defineProps({
   title: {
     type: String,
     required: true,
@@ -73,6 +81,94 @@ defineProps({
     type: Boolean,
     default: false,
   },
+})
+
+const chartData = computed(() => {
+  const isDark = themeStore.isDarkMode
+  const barColor = isDark ? 'rgba(241, 245, 249, 0.9)' : 'rgba(59, 130, 246, 0.8)'
+  const borderColor = isDark ? 'rgba(255, 255, 255, 1)' : 'rgba(59, 130, 246, 1)'
+
+  return {
+    labels: props.data.map(item => item.label),
+    datasets: [
+      {
+        label: 'Progress',
+        data: props.data.map(item => item.value),
+        backgroundColor: barColor,
+        borderColor: borderColor,
+        borderWidth: 1,
+        borderRadius: 4,
+        barThickness: 20,
+      }
+    ]
+  }
+})
+
+const chartOptions = computed(() => {
+  const isDark = themeStore.isDarkMode
+  const textColor = isDark ? 'rgba(248, 248, 252, 0.8)' : 'rgba(3, 3, 7, 0.7)'
+  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'
+
+  return {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        backgroundColor: isDark ? '#2a2a2a' : '#ffffff',
+        titleColor: isDark ? '#f8f8fc' : '#030307',
+        bodyColor: isDark ? '#f8f8fc' : '#030307',
+        padding: 12,
+        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        borderWidth: 1,
+        displayColors: false,
+        callbacks: {
+          label: function (context) {
+            return context.parsed.x + '%'
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 100,
+        grid: {
+          color: gridColor,
+          drawBorder: false
+        },
+        ticks: {
+          color: textColor,
+          font: {
+            size: 11
+          },
+          callback: function (value) {
+            return value + '%'
+          }
+        }
+      },
+      y: {
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          color: textColor,
+          font: {
+            size: 12,
+            weight: 500
+          }
+        }
+      }
+    },
+    animation: {
+      duration: 800,
+      easing: 'easeInOutQuart'
+    }
+  }
 })
 
 const formatLabel = (key) => {
@@ -144,39 +240,9 @@ const formatLabel = (key) => {
   flex-grow: 1;
 }
 
-.progress-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.progress-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.progress-top {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  color: var(--color-text);
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: var(--color-border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--color-text);
-  border-radius: 999px;
-  opacity: 0.9;
-  transition: width 0.4s ease;
+.chart-wrapper {
+  height: 180px;
+  position: relative;
 }
 
 .summary-row {

@@ -11,6 +11,7 @@ const SchoolView = () => import("@/views/school/SchoolView.vue");
 const DegreeView = () => import("@/views/degree/DegreeView.vue");
 const SubjectView = () => import("@/views/subject/SubjectView.vue");
 const CategoryView = () => import("@/views/category/CategoryView.vue");
+const UserView = () => import("@/views/user/UserView.vue");
 const ProfileView = () => import("@/views/profile/ProfileView.vue");
 const NotFoundView = () => import("@/views/NotFoundView.vue");
 
@@ -78,6 +79,14 @@ const router = createRouter({
           },
         },
         {
+          path: "user",
+          name: "user.index",
+          component: UserView,
+          meta: {
+            title: "User Management",
+          },
+        },
+        {
           path: "profile",
           name: "profile.index",
           component: ProfileView,
@@ -114,10 +123,18 @@ router.beforeEach(async (to) => {
     }
   }
 
+  const hasAdminRole = authStore.user?.roles?.some(role => role.name === 'System Admin');
+
   if (!authStore.isAuthenticated && to.name !== "login") {
     return { name: "login" };
   }
-  if (authStore.isAuthenticated && to.name === "login") {
+
+  if (authStore.isAuthenticated && !hasAdminRole && to.name !== "login") {
+    authStore.clearAuth();
+    return { name: "login" };
+  }
+
+  if (authStore.isAuthenticated && hasAdminRole && to.name === "login") {
     return { name: "dashboard" };
   }
 

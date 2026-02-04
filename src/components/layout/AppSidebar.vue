@@ -10,10 +10,6 @@
             <span class="logo-subtitle">Dashboard</span>
           </div>
         </RouterLink>
-        <button class="sidebar-toggle transparent-btn" title="Menu" type="button" @click="$emit('toggle-sidebar')">
-          <span class="sr-only">Toggle menu</span>
-          <i class="bi" :class="isHidden ? 'bi-chevron-right' : 'bi-chevron-left'" aria-hidden="true"></i>
-        </button>
       </div>
       <div class="sidebar-body">
         <ul class="sidebar-body-menu">
@@ -32,6 +28,10 @@
               </span>
             </button>
             <ul class="cat-sub-menu" :class="{ visible: isSettingsOpen }">
+              <li>
+                <RouterLink :class="{ active: isActive('/user') }" to="/user"><i class="bi bi-people-fill"
+                    aria-hidden="true"></i><span>Users</span></RouterLink>
+              </li>
               <li>
                 <RouterLink :class="{ active: isActive('/skill') }" to="/skill"><i class="bi bi-lightbulb-fill"
                     aria-hidden="true"></i><span>Skills</span></RouterLink>
@@ -85,7 +85,7 @@ import { useRoute } from 'vue-router';
 
 defineProps({
   authToken: {
-    type: [String, Object], // Object encompasses null in some contexts, or just remove type check strictly? Vue 3 supports [String, null]
+    type: [String, Object], 
     required: false,
     default: null
   },
@@ -100,7 +100,7 @@ defineEmits(['toggle-sidebar', 'logout']);
 const route = useRoute();
 
 const isSettingsOpen = ref(false);
-const settingsPaths = ['/skill', '/school', '/degree', '/subject', '/category'];
+const settingsPaths = ['/user', '/skill', '/school', '/degree', '/subject', '/category'];
 
 const isActive = (path) => {
   if (path === '/') {

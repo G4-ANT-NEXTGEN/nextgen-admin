@@ -2,6 +2,9 @@
   <nav class="main-nav--bg">
     <div class="main-nav">
       <div class="main-nav-start">
+        <button class="sidebar-toggle-navbar gray-circle-btn" type="button" @click="$emit('toggle-sidebar')" title="Toggle Sidebar">
+          <i class="bi bi-list"></i>
+        </button>
         <div class="search-wrapper">
           <i class="bi bi-search search-icon"></i>
           <input type="text" id="searchInput" placeholder="Enter keywords ..." autocomplete="off" required>
@@ -10,7 +13,7 @@
       <div class="main-nav-end">
         <button class="theme-switcher gray-circle-btn" type="button" title="Switch theme" @click="toggleTheme">
           <span class="sr-only">Switch theme</span>
-          <i class="bi bi-sun-fill" v-if="!isDarkMode"></i>
+          <i class="bi bi-sun-fill" v-if="!themeStore.isDarkMode"></i>
           <i class="bi bi-moon-fill" v-else></i>
         </button>
 
@@ -66,19 +69,25 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useThemeStore } from '@/stores/theme';
+
 const authStore = useAuthStore();
+const themeStore = useThemeStore();
 
 defineProps({
   authToken: {
     type: [String, Object],
     required: false,
     default: null
+  },
+  isHidden: {
+    type: Boolean,
+    default: false
   }
 });
 
 const emit = defineEmits(['toggle-sidebar', 'logout']);
 
-const isDarkMode = ref(localStorage.getItem('darkMode') === 'enabled');
 const isNotificationOpen = ref(false);
 const defaultAvatar = '/images/profile/profile.png';
 
@@ -93,14 +102,8 @@ const userDisplayName = computed(() => {
 
 const avatarSrc = computed(() => userProfile.value.avatar || defaultAvatar);
 
-const setTheme = (dark) => {
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-};
-
 const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('darkMode', isDarkMode.value ? 'enabled' : 'disabled');
-  setTheme(isDarkMode.value);
+  themeStore.toggleTheme();
 };
 
 const handleLogout = () => {
@@ -126,7 +129,7 @@ const closeAllDropdowns = () => {
 
 onMounted(() => {
   fetchUserProfile();
-  setTheme(isDarkMode.value);
+  themeStore.initTheme();
 });
 </script>
 
@@ -164,7 +167,7 @@ onMounted(() => {
   color: var(--color-text);
   cursor: pointer;
   border-radius: 6px;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 .notification-dropdown li button:hover,
@@ -229,18 +232,14 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--nav-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  background: transparent;
+  border: none;
   padding: 10px 12px;
   color: var(--color-text);
   text-decoration: none;
   font-size: 14px;
   border-radius: 6px;
-  transition: background-color 0.2s ease-in-out;
-  background: transparent;
-  border: none;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out, border-color 0.25s ease-in-out, transform 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
   cursor: pointer;
   justify-content: flex-start;
@@ -275,7 +274,7 @@ onMounted(() => {
   border-radius: 6px;
   width: 100%;
   text-align: left;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
   font-size: 14px;
 }
 
@@ -290,7 +289,7 @@ onMounted(() => {
   width: 100%;
   padding: 10px;
   border-radius: 6px;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 .nav-user-inline {
@@ -303,7 +302,7 @@ onMounted(() => {
   border: 1px solid var(--color-border);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .nav-user-inline:hover {
