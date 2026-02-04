@@ -84,7 +84,6 @@ export const useProfileStore = defineStore("profile", () => {
     isProcessing.value = true;
     try {
       const res = await api.put("/api/profile/professional", payload);
-      // Refresh to get nested professional data correctly
       await fetchProfile();
       return res.data;
     } catch (error) {

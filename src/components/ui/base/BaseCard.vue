@@ -11,5 +11,6 @@
   color: var(--color-text);
   padding: 1rem;
   border-radius: 8px;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 </style>

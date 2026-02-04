@@ -61,12 +61,16 @@ const close = () => emit('close')
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+}
+
+[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .modal-container {
@@ -184,7 +188,7 @@ const close = () => emit('close')
 
 /* Transitions */
 .modal-fade-enter-active, .modal-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .modal-fade-enter-from, .modal-fade-leave-to {
   opacity: 0;

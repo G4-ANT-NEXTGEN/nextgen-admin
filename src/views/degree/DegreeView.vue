@@ -4,8 +4,7 @@
 
     <header class="page-top-header">
       <div class="title-group">
-        <h1 class="management-title">Degrees</h1>
-        <p class="management-sub">Management</p>
+        <h1 class="management-title">Degrees Management</h1>
       </div>
       <button class="add-new-btn" @click="openCreateModal">
         <i class="bi bi-plus-lg"></i>
@@ -14,22 +13,12 @@
     </header>
 
     <div class="action-bar-container">
-      <BaseSearch
-        v-model="searchQuery"
-        placeholder="Search degrees..."
-        @search="handleSearch"
-      />
+      <BaseSearch v-model="searchQuery" placeholder="Search degrees..." @search="handleSearch" />
     </div>
 
     <BaseCard class="table-card-wrapper">
-      <BaseTable
-        :columns="columns"
-        :items="paginatedDegrees"
-        :is-loading="degreeStore.isLoading"
-        @view="handleView"
-        @edit="handleEdit"
-        @delete="handleDelete"
-      >
+      <BaseTable :columns="columns" :items="paginatedDegrees" :is-loading="degreeStore.isLoading" @view="handleView"
+        @edit="handleEdit" @delete="handleDelete">
         <template #column-id="{ item }">
           <span class="id-text">#{{ item.id }}</span>
         </template>
@@ -48,40 +37,31 @@
 
       <!-- Pagination -->
       <div v-if="degreeStore.degrees?.length > 0" class="pagination-footer">
-        <BasePagination
-          v-model:page="currentPage"
-          :per-page="itemsPerPage"
-          :total-items="degreeStore.degrees?.length || 0"
-        />
+        <BasePagination v-model:page="currentPage" :per-page="itemsPerPage"
+          :total-items="degreeStore.degrees?.length || 0" />
       </div>
     </BaseCard>
 
     <div class="stats-footer-grid">
-      <StatCard label="Total Items" :value="degreeStore.degrees?.length || 0" icon="bi-layers" iconColor="blue" :isLoading="degreeStore.isLoading" />
-      <StatCard label="Active" :value="activeCount" icon="bi-check-circle" iconColor="green" :isLoading="degreeStore.isLoading" />
-      <StatCard label="Recently Added" :value="newlyAddedCount" icon="bi-clock-history" iconColor="yellow" :isLoading="degreeStore.isLoading" />
+      <StatCard label="Total Items" :value="degreeStore.degrees?.length || 0" icon="bi-layers" iconColor="blue"
+        :isLoading="degreeStore.isLoading" />
+      <StatCard label="Active" :value="activeCount" icon="bi-check-circle" iconColor="green"
+        :isLoading="degreeStore.isLoading" />
+      <StatCard label="Recently Added" :value="newlyAddedCount" icon="bi-clock-history" iconColor="yellow"
+        :isLoading="degreeStore.isLoading" />
     </div>
 
     <!-- Modals Section -->
-    <BaseModal
-      :show="showFormModal"
-      :title="isEditing ? 'Update Degree' : 'Add New Degree'"
+    <BaseModal :show="showFormModal" :title="isEditing ? 'Update Degree' : 'Add New Degree'"
       :subtitle="isEditing ? 'Update your old entry for degrees' : 'Create a new entry for degrees'"
-      :hasPatternHeader="true"
-      @close="showFormModal = false"
-    >
+      :hasPatternHeader="true" @close="showFormModal = false">
       <div class="form-group">
-        <BaseInput
-          v-model="form.name"
-          label="Degree Name"
-          placeholder="Enter degree name..."
-          required
-          :error="errors.name"
-          @blur="validate('name')"
-        />
+        <BaseInput v-model="form.name" label="Degree Name" placeholder="Enter degree name..." required
+          :error="errors.name" @blur="validate('name')" />
       </div>
       <template #footer>
-        <button class="modal-btn cancel" :disabled="degreeStore.isProcessing" @click="showFormModal = false">Cancel</button>
+        <button class="modal-btn cancel" :disabled="degreeStore.isProcessing"
+          @click="showFormModal = false">Cancel</button>
         <button class="modal-btn confirm" :disabled="degreeStore.isProcessing" @click="saveDegree">
           <span v-if="degreeStore.isProcessing" class="spinner-border spinner-border-sm me-2"></span>
           {{ isEditing ? 'Update Degree' : 'Create Degree' }}
@@ -89,12 +69,8 @@
       </template>
     </BaseModal>
 
-    <BaseModal
-      :show="showDetailsModal"
-      title="Degree Details"
-      subtitle="View complete information about this degree"
-      @close="showDetailsModal = false"
-    >
+    <BaseModal :show="showDetailsModal" title="Degree Details" subtitle="View complete information about this degree"
+      @close="showDetailsModal = false">
       <template #header-icon>
         <div class="header-icon-box">
           <i class="bi bi-mortarboard-fill"></i>
@@ -109,7 +85,7 @@
         <div class="detail-card">
           <label><i class="bi bi-lightning-fill"></i> Status</label>
           <div>
-             <span class="status-badge" :class="getStatusClass(selectedItem?.status)">
+            <span class="status-badge" :class="getStatusClass(selectedItem?.status)">
               {{ selectedItem?.status || 'Active' }}
             </span>
           </div>
@@ -133,12 +109,8 @@
       </template>
     </BaseModal>
 
-    <BaseModal
-      :show="showDeleteModal"
-      title="Delete Degree ?"
-      subtitle="This action cannot be undone"
-      @close="showDeleteModal = false"
-    >
+    <BaseModal :show="showDeleteModal" title="Delete Degree ?" subtitle="This action cannot be undone"
+      @close="showDeleteModal = false">
       <template #header-icon>
         <div class="icon-box-danger">
           <i class="bi bi-trash-fill"></i>
@@ -154,13 +126,15 @@
           <i class="bi bi-exclamation-triangle-fill"></i>
           <div>
             <strong>Warning:</strong>
-            <p>This action is permanent and cannot be reversed. Make sure you have backed up any important information.</p>
+            <p>This action is permanent and cannot be reversed. Make sure you have backed up any important information.
+            </p>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <button class="modal-btn cancel" :disabled="degreeStore.isProcessing" @click="showDeleteModal = false">Cancel</button>
+        <button class="modal-btn cancel" :disabled="degreeStore.isProcessing"
+          @click="showDeleteModal = false">Cancel</button>
         <button class="modal-btn delete-confirm" :disabled="degreeStore.isProcessing" @click="confirmDelete">
           <span v-if="degreeStore.isProcessing" class="spinner-border spinner-border-sm me-2"></span>
           Delete Degree
@@ -221,7 +195,7 @@ const columns = [
   { key: 'created_at', label: 'Created', width: '180px' },
 ]
 
-onMounted( async () => {
+onMounted(async () => {
   await degreeStore.fetchDegrees()
 
   // Open create modal if redirected from dashboard quick actions
@@ -311,61 +285,215 @@ const getStatusClass = (status) => {
 </script>
 
 <style scoped>
-.degrees-management-page { display: flex; flex-direction: column; gap: 24px; }
+.degrees-management-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-.page-top-header { display: flex; justify-content: space-between; align-items: flex-end; }
-.management-title, .management-sub { margin: 0; font-size: 20px; font-weight: 600; color: var(--color-text); line-height: 1.2; }
+.page-top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+}
+
+.management-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.2;
+}
 
 .add-new-btn {
-  background: #fff; color: #000; border: 1px solid var(--color-border); padding: 8px 16px;
-  border-radius: 8px; font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+  background: #fff;
+  color: #000;
+  border: 1px solid var(--color-border);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
 }
-[data-theme='dark'] .add-new-btn { background: var(--nav-surface); color: #fff; }
 
-.status-badge { padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; }
-.status-active { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
-.status-pending { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+[data-theme='dark'] .add-new-btn {
+  background: var(--nav-surface);
+  color: #fff;
+}
 
-.stats-footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.status-active {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.status-pending {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.stats-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
 .pagination-footer {
   padding: 20px;
   border-top: 1px solid var(--color-border);
 }
 
-.form-group { display: flex; flex-direction: column; gap: 10px; }
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-.modal-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; }
-.modal-btn.cancel { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
-.modal-btn.confirm, .modal-btn.delete-confirm { background: var(--color-text); color: var(--color-secondary); }
-.modal-btn.full-btn { background: var(--color-text); color: var(--color-secondary); width: 100%; }
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
 
-.details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.detail-card { background: var(--nav-surface); border: 1px solid var(--color-border); padding: 16px; border-radius: 12px; }
-.detail-card.full { grid-column: span 2; }
-.detail-card label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-muted); margin-bottom: 8px; }
-.detail-card p { margin: 0; font-weight: 700; color: var(--color-text); }
-.detail-card .large-text { font-size: 18px; }
+.modal-btn.cancel {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.modal-btn.confirm,
+.modal-btn.delete-confirm {
+  background: var(--color-text);
+  color: var(--color-secondary);
+}
+
+.modal-btn.full-btn {
+  background: var(--color-text);
+  color: var(--color-secondary);
+  width: 100%;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.detail-card {
+  background: var(--nav-surface);
+  border: 1px solid var(--color-border);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.detail-card.full {
+  grid-column: span 2;
+}
+
+.detail-card label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+.detail-card p {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.detail-card .large-text {
+  font-size: 18px;
+}
 
 .header-icon-box {
-  width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid var(--color-border);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-text);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
 }
 
 .icon-box-danger {
-  width: 48px; height: 48px; background: rgba(239, 68, 68, 0.1); color: #ef4444;
-  border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px;
+  width: 48px;
+  height: 48px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
 }
 
-.confirm-message { color: var(--color-text); margin: 10px 0 20px 0; line-height: 1.6; }
-.confirm-message .highlight { font-weight: 700; color: var(--color-text); }
+.confirm-message {
+  color: var(--color-text);
+  margin: 10px 0 20px 0;
+  line-height: 1.6;
+}
+
+.confirm-message .highlight {
+  font-weight: 700;
+  color: var(--color-text);
+}
 
 .warning-alert {
-  background: rgba(234, 179, 8, 0.05); border: 1px solid rgba(234, 179, 8, 0.2);
-  padding: 16px; border-radius: 12px; display: flex; gap: 15px; align-items: flex-start;
+  background: rgba(234, 179, 8, 0.05);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
 }
-.warning-alert i { color: #eab308; font-size: 20px; }
-.warning-alert p { margin: 4px 0 0 0; font-size: 12px; color: var(--color-muted); line-height: 1.4; }
 
-@media (max-width: 768px) { .stats-footer-grid { grid-template-columns: 1fr; } .details-grid { grid-template-columns: 1fr; } .detail-card.full { grid-column: auto; } }
+.warning-alert i {
+  color: #eab308;
+  font-size: 20px;
+}
+
+.warning-alert p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .stats-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-card.full {
+    grid-column: auto;
+  }
+}
 </style>

@@ -20,12 +20,26 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.setItem("token", token.value);
 
     await fetchProfile();
+
+    // Verify if user has System Admin role
+    const hasAdminRole = user.value?.roles?.some(role => role.name === 'System Admin');
+    if (!hasAdminRole) {
+      clearAuth();
+      throw new Error('Unauthorized: Admin access required.');
+    }
   };
 
   const fetchProfile = async () => {
     try {
       const res = await api.get("/api/me");
       user.value = res.data.data;
+
+      // Ensure user still has System Admin role
+      const hasAdminRole = user.value?.roles?.some(role => role.name === 'System Admin');
+      if (!hasAdminRole) {
+        clearAuth();
+        throw new Error('Unauthorized: Admin access required.');
+      }
     } catch (error) {
       clearAuth();
       throw error;

@@ -49,27 +49,61 @@
         :summary="dashboardStore.summaryData" :is-loading="dashboardStore.isLoading" />
     </section>
 
-    <section class="card recent-activity">
+    <section class="card user-insights">
       <div class="section-head">
         <div class="section-title">
-          <i class="bi bi-clock-history" aria-hidden="true"></i>
-          <span>Recent Activity</span>
+          <i class="bi bi-people-fill" aria-hidden="true"></i>
+          <span>User Insights</span>
         </div>
-        <RouterLink to="/activities" class="muted link">View All</RouterLink>
+        <span class="muted">Powered by current data</span>
       </div>
-      <ul v-if="activityStore.isLoading" class="activity-list">
-        <li v-for="i in 5" :key="i" class="skeleton-activity-item">
-          <BaseSkeleton width="40px" height="40px" borderRadius="10px" />
-          <div class="skeleton-content">
-            <BaseSkeleton width="150px" height="18px" />
-            <BaseSkeleton width="220px" height="14px" />
+
+      <div v-if="dashboardStore.isLoading" class="insights-loading">
+        <div class="skeleton-activity-item">
+          <BaseSkeleton width="120px" height="18px" />
+          <BaseSkeleton width="180px" height="14px" />
+        </div>
+        <div class="skeleton-activity-item">
+          <BaseSkeleton width="120px" height="18px" />
+          <BaseSkeleton width="180px" height="14px" />
+        </div>
+      </div>
+
+      <div v-else class="insights-grid">
+        <div class="insight-card">
+          <h4 class="insight-title">User Summary</h4>
+          <div class="insight-stats">
+            <div class="insight-item">
+              <span class="insight-label">Total Users</span>
+              <span class="insight-value">{{ dashboardStore.userStats.totalUsers }}</span>
+            </div>
+            <div class="insight-item">
+              <span class="insight-label">Verified</span>
+              <span class="insight-value">{{ dashboardStore.userStats.verifiedUsers }}</span>
+            </div>
+            <div class="insight-item">
+              <span class="insight-label">New (30 days)</span>
+              <span class="insight-value">{{ dashboardStore.userStats.newUsers }}</span>
+            </div>
           </div>
-        </li>
-      </ul>
-      <ul v-else class="activity-list">
-        <ActivityItem v-for="item in activityStore.activities" :key="item.id || item.title" :type="item.type" :title="item.title"
-          :meta="item.meta" :time="item.time" :badge-color="item.badgeColor" />
-      </ul>
+        </div>
+
+        <div class="insight-card">
+          <h4 class="insight-title">Newest Users</h4>
+          <ul class="user-list">
+            <li v-for="user in dashboardStore.newestUsers" :key="user.id" class="user-item">
+              <img class="user-avatar" :src="getAvatarUrl(user.avatar)" :alt="user.full_name" />
+              <div class="user-meta">
+                <span class="user-name">{{ user.full_name }}</span>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+              <span class="user-status" :class="user.email_verified_at ? 'verified' : 'unverified'">
+                {{ user.email_verified_at ? 'Verified' : 'Unverified' }}
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -79,21 +113,25 @@ import { RouterLink, useRouter } from 'vue-router'
 import { onMounted } from 'vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import QuickActionCard from '@/components/ui/QuickActionCard.vue'
-import ActivityItem from '@/components/ui/ActivityItem.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import ProgressBarChart from '@/components/charts/ProgressBarChart.vue'
 import { useDashboardStore } from '@/stores/dashboard'
-import { useActivityStore } from '@/stores/activities'
 import BaseSkeleton from '@/components/ui/base/BaseSkeleton.vue'
 
 const dashboardStore = useDashboardStore()
-const activityStore = useActivityStore()
 const router = useRouter()
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://novia2.csm.linkpc.net'
 
 onMounted(() => {
   dashboardStore.fetchDashboardData()
-  activityStore.fetchActivities()
 })
+
+const getAvatarUrl = (avatar) => {
+  if (!avatar || avatar === 'no_photo.jpg') {
+    return '/images/avatar/avatar-illustrated-01.png'
+  }
+  return `${API_BASE_URL}/storage/avatars/${avatar}`
+}
 
 const generateReport = () => {
   const data = dashboardStore.statCardsData.map(card => ({
@@ -142,7 +180,8 @@ const handleQuickAction = (label) => {
 .custom-header {
   position: relative;
   overflow: hidden;
-  background-color: var(--nav-bg); /* Use theme background */
+  background-color: var(--nav-bg);
+  /* Use theme background */
   background-image:
     linear-gradient(var(--color-text) 0.05px, transparent 0.05px),
     linear-gradient(90deg, var(--color-text) 0.05px, transparent 0.05px);
@@ -254,6 +293,7 @@ const handleQuickAction = (label) => {
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 16px;
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out;
 }
 
 .section-head {
@@ -288,22 +328,126 @@ const handleQuickAction = (label) => {
 
 .skeleton-activity-item {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 8px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.skeleton-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
 }
 
-.activity-list {
+.insight-card {
+  background: var(--nav-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.insight-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.insight-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.insight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--nav-surface);
+  border: 1px solid var(--color-border);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.insight-label {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.insight-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.user-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.user-item {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--nav-surface);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.user-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.user-status.verified {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.user-status.pending {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.user-status.unverified {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
 }
 
 .charts {

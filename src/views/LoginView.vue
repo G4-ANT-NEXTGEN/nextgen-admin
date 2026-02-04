@@ -128,7 +128,7 @@ const handleLogin = async () => {
   } catch (error) {
     // Extract the most descriptive error message possible
     const errorData = error.response?.data;
-    let errorMessage = 'Login failed. Please check your credentials.';
+    let errorMessage = error.message || 'Login failed. Please check your credentials.';
 
     if (errorData) {
       if (typeof errorData === 'string') {

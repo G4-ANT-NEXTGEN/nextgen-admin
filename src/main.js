@@ -11,7 +11,7 @@ import BaseInput from "./components/ui/base/BaseInput.vue";
 import BaseModal from "./components/ui/base/BaseModal.vue";
 import BaseTable from "./components/ui/base/BaseTable.vue";
 import BasePagination from "./components/ui/base/BasePagination.vue";
-
+import 'flatpickr/dist/flatpickr.css'
 import Chart from 'chart.js/auto';
 
 const app = createApp(App)

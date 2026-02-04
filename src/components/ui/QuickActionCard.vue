@@ -43,7 +43,7 @@ defineEmits(['click'])
     border: 1px dashed var(--color-border);
     background: var(--nav-surface);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out, transform 0.2s ease;
 }
 
 .quick-action:hover {
